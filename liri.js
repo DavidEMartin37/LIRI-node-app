@@ -6,27 +6,30 @@ var spotify = new Spotify(keys.spotify);
 var moment = require('moment');
 var fs = require("fs");
 var action = process.argv[2];
-
+var value = process.argv.slice(3).join(" ");
+choices();
+function choices() {
 switch (action) {
   case "concert-this":
-    concertThis();
+    concertThis(value);
     break;
 
   case "spotify-this-song":
-    spotifyThis();
+    spotifyThis(value);
     break;
 
   case "movie-this":
-    movieThis();
+    movieThis(value);
     break;
 
   case "do-what-it-says":
     doThis();
     break;
+  }
 }
 function concertThis() {
-  var artist = process.argv.slice(3).join(" ");
-  var concertQueryUrl = "https://rest.bandsintown.com/artists/" + artist + "/events?app_id=codingbootcamp";
+  
+  var concertQueryUrl = "https://rest.bandsintown.com/artists/" + value + "/events?app_id=codingbootcamp";
   console.log(concertQueryUrl);
   axios.get(concertQueryUrl)
     .then(function (response) {
@@ -49,12 +52,12 @@ function concertThis() {
     });
 };
 function spotifyThis() {
-  var songName = process.argv.slice(3).join(" ");
-  if (process.argv[3] === undefined) {
-    songName = "The Sign";
+
+  if (value === "" || value === undefined) {
+    value = "The Sign";
   }
   spotify
-    .search({ type: 'track', query: songName })
+    .search({ type: 'track', query: value })
     .then(function (response) {
       //  console.log(response.tracks.items)
       var songData = response.tracks.items;
@@ -70,12 +73,12 @@ function spotifyThis() {
     });
 };
 function movieThis() {
-  var movieName = process.argv.slice(3).join(" ");
-  if (process.argv[3] === undefined) {
-    movieName = "Mr. Nobody";
+  
+  if (value === "" || value === undefined) {
+    value = "Mr. Nobody";
     console.log("If you haven't watched 'Mr. Nobody,' then you should: It's on Netflix!")
   }
-  var queryUrl = "http://www.omdbapi.com/?t=" + movieName + "&y=&plot=short&apikey=trilogy";
+  var queryUrl = "http://www.omdbapi.com/?t=" + value + "&y=&plot=short&apikey=trilogy";
   console.log(queryUrl);
   axios.get(queryUrl)
     .then(function (response) {
@@ -100,6 +103,7 @@ function movieThis() {
     });
 }
 function doThis() {
+
   fs.readFile("random.txt", "utf8", function (error, data) {
     if (error) {
       return console.log(error);
@@ -107,29 +111,8 @@ function doThis() {
     console.log(data);
     var dataArr = data.split(",");
     console.log(dataArr);
-    dataArr[0] = action;
-    dataArr[1] = input;
-    function runAgain(action, input) {
-      dataArr[0] = action;
-      dataArr[1] = input;
-      switch (action) {
-        case "concert-this":
-          concertThis(input);
-          break;
-      
-        case "spotify-this-song":
-          spotifyThis(input);
-          break;
-      
-        case "movie-this":
-          movieThis(input);
-          break;
-      
-        case "do-what-it-says":
-          doThis();
-          break;
-      }
-    }
+    action = dataArr[0]; 
+    value = dataArr[1]; 
+    choices();
   })
 }
-//runAgain();
